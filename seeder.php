@@ -1,8 +1,8 @@
 <?php
 
-include 'database.php';
+require_once 'database.php';
 
-function seed($count)
+function seed($connection, $count)
 {
     $start = microtime(true);
 
@@ -10,8 +10,6 @@ function seed($count)
     if ($count < $chunk) {
         $chunk = $count;
     }
-
-    $connection = connection_open();
 
     toggle_keys($connection, 'users', false);
     toggle_keys($connection, 'emails', false);
@@ -62,8 +60,6 @@ QUERY;
     toggle_keys($connection, 'users', true);
     toggle_keys($connection, 'emails', true);
 
-    connection_close($connection);
-
     $end = microtime(true);
     $time = round($end - $start, 4);
     echo "Inserted {$count} rows. It took {$time} seconds";
@@ -100,5 +96,3 @@ QUERY;
         die("Unable to {$action} keys for table {$table}!");
     }
 }
-
-seed(1000000);

@@ -3,7 +3,7 @@
 function connection_open()
 {
     if(file_exists('dbconfig.php')) {
-        $config = require_once 'dbconfig.php';
+        $config = require 'dbconfig.php';
     } else {
         die('Отсутствует файл конфигурации БД - dbconfig.php, создайте его из примера - dbconfig_example.php');
     }

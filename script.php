@@ -1,6 +1,6 @@
 <?php
 
-include 'database.php';
+require_once 'database.php';
 
 function check_email($email)
 {
@@ -20,7 +20,7 @@ function check_subscription()
     $subj = 'Renew your subscription';
     $text = 'Subscription renewal text';
 
-    $time = strtotime('+ 2 days');
+    $time = strtotime('+2 days');
 
     $query = <<<QUERY
 SELECT
@@ -30,9 +30,9 @@ SELECT
 FROM users
 JOIN emails
 ON users.email = emails.email
-WHERE users.email_confirmed = TRUE
+WHERE validts = {$time}
+AND users.email_confirmed = TRUE
 AND (emails.valid = TRUE OR emails.checked = FALSE)
-AND validts = {$time}
 
 QUERY;
 
@@ -58,8 +58,9 @@ ROW_QUERY;
             }
 
             send_email($email, $row['email'], $row['email'], $subj, $text);
+            echo "Email was sent to {$row['email']}!" . PHP_EOL;
         }
     }
-}
 
-check_subscription();
+    connection_close($connection);
+}
