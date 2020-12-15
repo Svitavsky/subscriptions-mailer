@@ -1,6 +1,6 @@
 <?php
 
-include 'database.php';
+require_once 'database.php';
 
 function run_query($connection, $query, $table)
 {
@@ -15,11 +15,11 @@ function create_users_table($connection)
 {
     $query = <<<QUERY
 CREATE TABLE IF NOT EXISTS users(
-    username VARCHAR(255) PRIMARY KEY,
-    email VARCHAR(255) UNIQUE,
+    id BIGINT NOT NULL AUTO_INCREMENT PRIMARY KEY,
+    username VARCHAR(255),
+    email VARCHAR(255),
     validts BIGINT,
-    email_confirmed BOOLEAN,
-    INDEX(email)
+    email_confirmed BOOLEAN
 )
 QUERY;
 
@@ -30,7 +30,8 @@ function create_emails_table($connection)
 {
     $query = <<<QUERY
 CREATE TABLE IF NOT EXISTS emails(
-    email VARCHAR(255) PRIMARY KEY,
+    id BIGINT NOT NULL AUTO_INCREMENT PRIMARY KEY,
+    email VARCHAR(255),
     checked BOOLEAN,
     valid BOOLEAN
 )
@@ -39,14 +40,37 @@ QUERY;
     run_query($connection, $query, 'emails');
 }
 
-function migrate_all()
+function migrate_all($connection)
 {
-    $connection = connection_open();
-
     create_users_table($connection);
     create_emails_table($connection);
-
-    connection_close($connection);
 }
 
-migrate_all();
+function index_users_table($connection) {
+    $queryEmail = <<<QUERY
+CREATE INDEX email
+ON users(email)
+QUERY;
+
+    $queryConfirmed = <<<QUERY
+CREATE INDEX email_confirmed
+ON users(email_confirmed) DESC
+QUERY;
+
+    mysqli_query($connection, $queryEmail);
+    mysqli_query($connection, $queryConfirmed);
+}
+
+function index_emails_table($connection) {
+    $query = <<<QUERY
+CREATE INDEX email
+ON emails(email)
+QUERY;
+
+    mysqli_query($connection, $query);
+}
+
+function index_all($connection) {
+    index_users_table($connection);
+    index_emails_table($connection);
+}
